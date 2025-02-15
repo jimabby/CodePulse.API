@@ -1,7 +1,6 @@
 ﻿using CodePulse.API.Models.Domain;
 using CodePulse.API.Models.DTO;
 using CodePulse.API.Repositories.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodePulse.API.Controllers
@@ -26,7 +25,7 @@ namespace CodePulse.API.Controllers
             {
                 Author = request.Author,
                 Content = request.Content,
-                FeatureImageUrl = request.FeatureImageUrl,
+                FeaturedImageUrl = request.FeaturedImageUrl,
                 IsVisible = request.IsVisible,
                 PublishedDate = request.PublishedDate,
                 ShortDescription = request.ShortDescription,
@@ -42,7 +41,7 @@ namespace CodePulse.API.Controllers
                 Id = blogPost.Id,
                 Author = request.Author,
                 Content = request.Content,
-                FeatureImageUrl = request.FeatureImageUrl,
+                FeaturedImageUrl = request.FeaturedImageUrl,
                 IsVisible = request.IsVisible,
                 PublishedDate = request.PublishedDate,
                 ShortDescription = request.ShortDescription,
@@ -51,6 +50,33 @@ namespace CodePulse.API.Controllers
             };
 
             return Ok(reponse);
+        }
+
+        //GET: {apibasrurl}/api/blogposts
+        [HttpGet]
+        public async Task<IActionResult> GetAllBlogPosts()
+        {
+            var blogPosts = await blogPostRepository.GetAllAsync();
+
+            //convert Domain model to DTO
+            var response = new List<BlogPostDto>();
+            foreach(var blogPost in blogPosts)
+            {
+                response.Add(new BlogPostDto
+                {
+                    Id = blogPost.Id,
+                    Author = blogPost.Author,
+                    Content = blogPost.Content,
+                    FeaturedImageUrl = blogPost.FeaturedImageUrl,
+                    IsVisible = blogPost.IsVisible,
+                    PublishedDate = blogPost.PublishedDate,
+                    ShortDescription = blogPost.ShortDescription,
+                    Title = blogPost.Title,
+                    UrlHandle = blogPost.UrlHandle,
+                });
+            }
+
+            return Ok(response);
         }
     }
 }
