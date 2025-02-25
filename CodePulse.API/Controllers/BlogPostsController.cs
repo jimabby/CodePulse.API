@@ -12,7 +12,7 @@ namespace CodePulse.API.Controllers
         private readonly IBlogPostRepository blogPostRepository;
         private readonly ICategoryRepository categoryRepository;
 
-        public BlogPostsController(IBlogPostRepository blogPostRepository, ICategoryRepository categoryRepository) 
+        public BlogPostsController(IBlogPostRepository blogPostRepository, ICategoryRepository categoryRepository)
         {
             this.blogPostRepository = blogPostRepository;
             this.categoryRepository = categoryRepository;
@@ -39,7 +39,7 @@ namespace CodePulse.API.Controllers
             foreach (var categoryGuid in request.Categories)
             {
                 var existingCategory = await categoryRepository.GetById(categoryGuid);
-                if(existingCategory is not null)
+                if (existingCategory is not null)
                 {
                     blogPost.Categories.Add(existingCategory);
                 }
@@ -62,7 +62,7 @@ namespace CodePulse.API.Controllers
                 Categories = blogPost.Categories.Select(x => new CategoryDto {
                     Id = x.Id,
                     Name = x.Name,
-                    UrlHandle= x.UrlHandle,
+                    UrlHandle = x.UrlHandle,
                 }).ToList(),
             };
 
@@ -77,7 +77,7 @@ namespace CodePulse.API.Controllers
 
             //convert Domain model to DTO
             var response = new List<BlogPostDto>();
-            foreach(var blogPost in blogPosts)
+            foreach (var blogPost in blogPosts)
             {
                 response.Add(new BlogPostDto
                 {
@@ -92,9 +92,9 @@ namespace CodePulse.API.Controllers
                     UrlHandle = blogPost.UrlHandle,
                     Categories = blogPost.Categories.Select(x => new CategoryDto
                     {
-                        Id= x.Id,
+                        Id = x.Id,
                         Name = x.Name,
-                        UrlHandle= x.UrlHandle,
+                        UrlHandle = x.UrlHandle,
                     }).ToList()
                 });
             }
@@ -171,7 +171,7 @@ namespace CodePulse.API.Controllers
             // Call Repository to Update BlogPost Domain Model
             var updatedBlogPost = await blogPostRepository.UpdateAsync(blogPost);
 
-            if (updatedBlogPost == null) 
+            if (updatedBlogPost == null)
             {
                 return NotFound();
             }
@@ -198,5 +198,35 @@ namespace CodePulse.API.Controllers
 
             return Ok(response);
         }
+
+        //DELETE: {apibaseurl}/api/blogposts/{id}
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> DeleteBlogPost([FromRoute] Guid id)
+        {
+            var deletedBlogPost = await blogPostRepository.DeleteAsync(id);
+
+            if (deletedBlogPost == null)
+            {
+                return NotFound();
+            }
+
+            // Convert Domain model to DTO
+            var response = new BlogPostDto
+            {
+                Id = deletedBlogPost.Id,
+                Author = deletedBlogPost.Author,
+                Content = deletedBlogPost.Content,
+                FeaturedImageUrl = deletedBlogPost.FeaturedImageUrl,
+                IsVisible = deletedBlogPost.IsVisible,
+                PublishedDate = deletedBlogPost.PublishedDate,
+                ShortDescription = deletedBlogPost.ShortDescription,
+                Title = deletedBlogPost.Title,
+                UrlHandle = deletedBlogPost.UrlHandle,
+            };
+
+            return Ok(response);
+        }
+
     }
 }
